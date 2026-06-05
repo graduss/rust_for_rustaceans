@@ -1,0 +1,47 @@
+pub fn f1_1() {
+    let answer = 42;
+    let p1 = &answer;
+    let p2 = &answer;
+
+    println!("{:p} == {:p}", p1, p2);
+    println!("{:p} != {:p}", &p1, &p2)
+}
+
+pub fn f1_2() {
+    let s1: &str = "Hello world";
+    let s2: &str = "Hello world";
+
+    println!("s1: {:p}, s2: {:p}", s1.as_ptr(), s2.as_ptr());
+    let owned: String = s1.to_owned();
+    println!("heap: {:p}", owned.as_ptr());
+}
+
+pub fn e1_1() {
+    let a = [0u8; 16];
+
+    println!(
+        "&a: {:p}; &a[0]: {:p}; &a[15]: {:p}",
+        a.as_ptr(),
+        &a[0],
+        &a[15]
+    )
+}
+
+pub fn e2_2() {
+    let mut v = vec![(4,), (5,), (6,)];
+    let first = &v[0];
+    println!("{first:?}");
+    v.push((7,));
+    let first = &v[0];
+    println!("{first:?}")
+}
+
+static GREETING: &str = "hi";
+pub fn f3_1() {
+    let as_stack: [u64; 4] = [5, 6, 7, 8];
+    let as_heap: Box<[i32]> = vec![5, 6, 7, 8].into_boxed_slice();
+
+    println!("static: {:p}", GREETING.as_ptr());
+    println!("heap: {:p}", as_heap.as_ptr());
+    println!("stack: {:p}", &as_stack);
+}
