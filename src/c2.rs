@@ -45,3 +45,35 @@ pub fn f3_1() {
     println!("heap: {:p}", as_heap.as_ptr());
     println!("stack: {:p}", &as_stack);
 }
+
+pub type TConfig = [u8; 4];
+static DEFAULT: TConfig = [0u8; 4];
+static mut CONFIG: Option<TConfig> = None;
+pub unsafe fn e3_init(conf: &TConfig) {
+    unsafe {
+        let p = &raw mut CONFIG;
+        if (*p).is_none() {
+            (*p) = Some(*conf);
+        }
+    }
+}
+pub fn get_config() -> &'static TConfig {
+    let p = &raw const CONFIG;
+    unsafe {
+        match &*p {
+            Some(cfg) => cfg,
+            None => &DEFAULT,
+        }
+    }
+}
+
+pub fn into_pieces(mut s: String) -> (String, String) {
+    let mid = s
+        .char_indices()
+        .nth(s.chars().count() / 2)
+        .map(|(i, _)| i)
+        .unwrap_or(s.len());
+    let right = s.split_off(mid);
+
+    (s, right)
+}
