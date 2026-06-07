@@ -77,3 +77,9 @@ pub fn into_pieces(mut s: String) -> (String, String) {
 
     (s, right)
 }
+
+pub fn e3_2() -> &'static mut Vec<i32> {
+    let b = Box::new(Vec::new());
+
+    Box::leak(b)
+}
