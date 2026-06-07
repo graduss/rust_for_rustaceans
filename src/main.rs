@@ -34,5 +34,18 @@ fn main() {
         })
         .for_each(|job| job.join().unwrap());
 
-    println!("{:?}", v);
+    println!("{:?} \n", v);
+
+    println!("## E 6.2");
+    let fib = c2::Fib::new(20);
+    println!("Fib[15] = {}", fib.get(15));
+    println!("======== \n");
+
+    println!("## E 6.3");
+    let counter = c2::Counter::new();
+    println!("0 = {}", counter.get());
+    counter.record();
+    counter.record();
+    println!("{}", counter.get());
+    println!("===== \n")
 }

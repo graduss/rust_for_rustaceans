@@ -83,3 +83,50 @@ pub fn e3_2() -> &'static mut Vec<i32> {
 
     Box::leak(b)
 }
+
+use std::cell::{Cell, RefCell};
+
+pub struct Counter {
+    hits: Cell<usize>,
+}
+
+impl Counter {
+    pub fn new() -> Self {
+        Self { hits: Cell::new(0) }
+    }
+
+    pub fn record(&self) {
+        self.hits.set(self.hits.get() + 1);
+    }
+
+    pub fn get(&self) -> usize {
+        self.hits.get()
+    }
+}
+
+pub struct Fib {
+    cache: RefCell<Vec<Option<u64>>>,
+}
+
+impl Fib {
+    pub fn new(size: usize) -> Self {
+        Self {
+            cache: RefCell::new(vec![None; size]),
+        }
+    }
+
+    pub fn get(&self, n: usize) -> u64 {
+        if let Some(v) = self.cache.borrow()[n] {
+            return v;
+        }
+
+        let value = match n {
+            0 => 0,
+            1 => 1,
+            _ => self.get(n - 1) + self.get(n - 2),
+        };
+
+        self.cache.borrow_mut()[n] = Some(value);
+        value
+    }
+}
