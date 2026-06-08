@@ -130,3 +130,105 @@ impl Fib {
         value
     }
 }
+
+pub struct Parser<'a> {
+    rest: &'a str,
+}
+
+impl<'a> Parser<'a> {
+    pub fn new(doc: &'a str) -> Self {
+        Self { rest: doc }
+    }
+
+    pub fn next_world(&mut self) -> Option<&'a str> {
+        let rest = self.rest.trim_start();
+        if rest.is_empty() {
+            return None;
+        }
+
+        let end = rest.find(" ").unwrap_or(rest.len());
+
+        let (world, tail) = rest.split_at(end);
+        self.rest = tail;
+        Some(world)
+    }
+
+    pub fn remaining(&self) -> &'a str {
+        let rest = self.rest.trim_start();
+        rest
+    }
+}
+
+pub struct StrSplit<'s, 'p> {
+    document: &'s str,
+    delimiter: &'p str,
+}
+
+impl<'s, 'p> StrSplit<'s, 'p> {
+    pub fn new(doc: &'s str, del: &'p str) -> Self {
+        Self {
+            document: doc,
+            delimiter: del,
+        }
+    }
+}
+
+impl<'s, 'p> Iterator for StrSplit<'s, 'p> {
+    type Item = &'s str;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.document.is_empty() {
+            return None;
+        }
+
+        let ind = self
+            .document
+            .find(self.delimiter)
+            .map(|ind| ind + self.delimiter.len())
+            .unwrap_or(self.document.len());
+        let (first, tail) = self.document.split_at(ind);
+
+        self.document = tail;
+        Some(first)
+    }
+}
+
+pub struct MutStr<'s, 'b> {
+    pub s: &'s mut &'b str,
+}
+
+pub struct Arena {
+    messages: Vec<Box<str>>,
+    count: Cell<usize>,
+}
+
+impl Arena {
+    pub fn new() -> Self {
+        Self {
+            messages: Vec::new(),
+            count: Cell::new(0),
+        }
+    }
+
+    fn record_log(&self) {
+        self.count.set(self.count.get() + 1);
+    }
+
+    pub fn log(&mut self, message: String) -> &str {
+        self.record_log();
+
+        self.messages.push(message.into_boxed_str());
+
+        self.messages.last().unwrap().as_ref()
+    }
+
+    pub fn drain(&mut self) -> Vec<String> {
+        std::mem::take(&mut self.messages)
+            .into_iter()
+            .map(|box_str| box_str.into())
+            .collect::<Vec<String>>()
+    }
+
+    pub fn count(&self) -> usize {
+        self.count.get()
+    }
+}

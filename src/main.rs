@@ -1,6 +1,6 @@
 mod c2;
 
-fn main() {
+fn test_c2() {
     c2::f1_1();
     c2::f1_2();
     c2::f3_1();
@@ -47,5 +47,67 @@ fn main() {
     counter.record();
     counter.record();
     println!("{}", counter.get());
-    println!("===== \n")
+    println!("===== \n");
+
+    println!("### P 7");
+    let doc = String::from("test dock last");
+    let remaining: &str;
+    {
+        let mut p = c2::Parser::new(&doc);
+        println!("{:?}", p.next_world());
+        println!("{:?}", p.next_world());
+        remaining = p.remaining();
+    }
+    println!("{remaining}");
+    println!("==== \n");
+
+    println!("### E 7.4");
+    let doc = String::from("test, dock, last");
+    let first: &str;
+
+    {
+        let decim = String::from(", ");
+        let mut splet = c2::StrSplit::new(&doc, &decim);
+        first = splet.next().unwrap();
+
+        std::thread::scope(|s| {
+            for chank in splet {
+                s.spawn(move || {
+                    println!("{chank}");
+                });
+            }
+        })
+    }
+
+    println!("{first}");
+    println!("==== \n");
+
+    println!("### e 8.3");
+    let string = String::from("test");
+    let mut local: &str = &string;
+    *c2::MutStr { s: &mut local }.s = "test 2";
+    println!("{local}");
+    println!("==== \n");
+
+    println!("### project");
+    let mut area = c2::Arena::new();
+    println!("{}", area.log(String::from("test 1")));
+    println!("{}", area.log(String::from("test 2")));
+    let _ = area.log(String::from("test 3"));
+    println!("count: {}", area.count());
+    area.drain()
+        .into_iter()
+        .for_each(|string| println!("{:?}", string));
+
+    let mut area2 = c2::Arena::new();
+    let demo_log = {
+        let s = "test 2";
+        area2.log(s.into())
+    };
+    println!("demo_log: {demo_log}");
+    println!("==== \n");
+}
+
+fn main() {
+    test_c2();
 }
