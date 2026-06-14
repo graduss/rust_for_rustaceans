@@ -1,6 +1,7 @@
 mod c2;
+mod c3;
 
-fn test_c2() {
+fn traning_c2() {
     c2::f1_1();
     c2::f1_2();
     c2::f3_1();
@@ -108,6 +109,31 @@ fn test_c2() {
     println!("==== \n");
 }
 
+fn traning_c3() {
+    let (s_foo_c, a_foo_c, s_foo_rust, a_foo_rust) = c3::compare_rept();
+
+    println!("### 3.1");
+    println!("repr C: {}:{}", s_foo_c, a_foo_c);
+    println!("repr Rust: {}:{}", s_foo_rust, a_foo_rust);
+    println!("==== \n");
+
+    println!("### 3.2");
+    c3::f2_1();
+    c3::f2_2();
+    println!("==== \n");
+
+    println!("### E 3.2");
+    c3::e2_1();
+    c3::e2_2();
+    println!("==== \n");
+
+    println!("### 3.3");
+    c3::f3_1();
+    c3::f3_3();
+    println!("==== \n");
+}
+
 fn main() {
-    test_c2();
+    traning_c2();
+    traning_c3();
 }
