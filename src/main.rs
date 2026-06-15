@@ -131,6 +131,10 @@ fn traning_c3() {
     c3::f3_1();
     c3::f3_3();
     println!("==== \n");
+
+    println!("### E 3");
+    c3::e3();
+    println!("==== \n");
 }
 
 fn main() {

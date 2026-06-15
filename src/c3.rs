@@ -144,3 +144,21 @@ pub fn f3_3() {
     println!("{}", show_sized(&"hi")); // [hi]
     println!("{}", show_sized(&7)); // [7]
 }
+
+struct LastField {
+    header: u32,
+    data: [u8],
+}
+
+pub fn e3() {
+    println!("size_of::<&str> = {}", size_of::<&str>());
+    println!("size_of::<&dyn Display> = {}", size_of::<&dyn Display>());
+
+    println!("size_of::<&&str> = {}", size_of::<&&str>());
+    println!("size_of::<&&dyn Display> = {}", size_of::<&&dyn Display>());
+
+    println!("size_of::<&LastField> = {}", size_of::<&LastField>());
+
+    println!("size_of::<<Vec<u8>> = {}", size_of::<Vec<u8>>());
+    println!("size_of::<Box<[u8]>> = {}", size_of::<Box<[u8]>>());
+}
