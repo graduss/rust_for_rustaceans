@@ -23,3 +23,13 @@ Materials are in Russian:
   - `fX_Y()` — example Y from section X ("Пример X.Y" in the practice file).
   - `eX_Y()` — exercise Y from section X ("Задания").
 - When adding a new chapter's code, create `src/cN.rs`, follow the same naming, and register/call the functions in `main.rs`.
+- `reference/` holds finished reference implementations (`c9.rs`, `rb17.rs`); they are not compiled. `src/c9.rs` and `src/rb17.rs` are the user's own work-in-progress files.
+- `src/rb17.rs` is a beginner track based on *The Rust Book* ch. 17 (async), with its practice file `examples/RustBook_Глава_17_Async_практика.md`; same `fX_Y`/`eX_Y` naming.
+- `src/rt.rs` is a small std-only async runtime mirroring the `trpl` crate API (`block_on`, `spawn_task`, `sleep`, `join`/`join!`, `select`, `channel`, `Stream`), so Rust Book examples run without dependencies. Keep the crate dependency-free.
+
+## Study workflow (async tracks)
+
+The user learns by typing code themselves:
+1. Explain the theory for the next topic in the console (in Russian).
+2. Propose an example/exercise to implement: what to write, expected behaviour/output — but no solution code.
+3. The user implements it in `src/`. Show solution code in the console only when they ask; never write it into `src/` for them. `reference/` can be used as the source for solutions.

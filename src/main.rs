@@ -1,5 +1,10 @@
 mod c2;
 mod c3;
+mod c9;
+mod rb17;
+#[allow(dead_code, unused_macros, unused_imports)]
+// рантайм-библиотека: используется по мере решения примеров
+mod rt;
 
 fn traning_c2() {
     c2::f1_1();
@@ -137,7 +142,29 @@ fn traning_c3() {
     println!("==== \n");
 }
 
+fn traning_c9() {}
+
+fn traning_rb17() {
+    println!("start: f1_1");
+    rb17::f1_1();
+    println!("end");
+
+    println!("*****");
+
+    println!("start: f1_2");
+    rb17::f1_2();
+    println!("end");
+
+    println!("*****");
+
+    println!("start: f1_3");
+    rb17::f1_3();
+    println!("end");
+}
+
 fn main() {
-    traning_c2();
-    traning_c3();
+    // traning_c2();
+    // traning_c3();
+    // traning_c9();
+    traning_rb17();
 }
