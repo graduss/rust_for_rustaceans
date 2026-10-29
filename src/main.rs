@@ -160,6 +160,38 @@ fn traning_rb17() {
     println!("start: f1_3");
     rb17::f1_3();
     println!("end");
+
+    println!("start: e1_1");
+    rb17::e1_1();
+    println!("end");
+
+    println!("start: e1_3");
+    rb17::e1_3();
+    println!("end");
+
+    println!("start: e1_4");
+    rb17::e1_4();
+    println!("end");
+
+    println!("start: f2_2");
+    rb17::f2_2();
+    println!("end");
+
+    println!("start: f2_3");
+    rb17::f2_3();
+    println!("end");
+
+    println!("start: f2_4");
+    rb17::f2_4();
+    println!("end");
+
+    println!("start: f2_5");
+    rb17::f2_5();
+    println!("end");
+
+    println!("start: f2_6");
+    rb17::f2_6();
+    println!("end");
 }
 
 fn main() {
