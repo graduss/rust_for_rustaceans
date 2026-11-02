@@ -765,3 +765,69 @@ pub fn f5_3() {
         println!("Start!")
     });
 }
+
+struct LazyTicks {
+    left: u32,
+}
+
+impl Future for LazyTicks {
+    type Output = &'static str;
+
+    fn poll(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
+        println!("  poll, left = {}", self.left);
+        if self.left == 0 {
+            Poll::Ready("Done")
+        } else {
+            self.left -= 1;
+            Poll::Pending
+        }
+    }
+}
+
+pub fn e5_1() {
+    let mut tasks = LazyTicks { left: 8 };
+    let mut cx = Context::from_waker(Waker::noop());
+
+    loop {
+        match Pin::new(&mut tasks).poll(&mut cx) {
+            Poll::Pending => println!("Roll -> Pending"),
+            Poll::Ready(v) => {
+                println!("Roll -> Ready({v})");
+                break;
+            }
+        }
+    }
+
+    // rt::block_on(async {
+    //     let tasks = LazyTicks { left: 8 };
+    //     let v = tasks.await;
+    //     println!("{v}");
+    // });
+}
+
+struct MyReady<T>(Option<T>);
+impl<T> MyReady<T> {
+    pub fn new(v: Option<T>) -> Self {
+        Self(v)
+    }
+}
+
+impl<T: Unpin> Future for MyReady<T> {
+    type Output = T;
+    fn poll(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
+        Poll::Ready(self.0.take().expect("polled after completion"))
+    }
+}
+
+pub fn e5_3() {
+    rt::block_on(async {
+        let mr = MyReady::new(Some(45));
+
+        println!("{}", mr.await);
+
+        let mr = MyReady::new(Some("test"));
+
+        println!("{}", mr.await);
+        //println!("{}", mr.await);
+    });
+}

@@ -261,6 +261,14 @@ fn traning_rb17() {
     println!("start: f5_3");
     rb17::f5_3();
     println!("end");
+
+    println!("start: e5_1");
+    rb17::e5_1();
+    println!("end");
+
+    println!("start: e5_3");
+    rb17::e5_3();
+    println!("end");
 }
 
 fn main() {
