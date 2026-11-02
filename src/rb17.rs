@@ -2,10 +2,10 @@
 //! Рантайм: `crate::rt` (замена крейта `trpl`).
 //! Эталон (не подсматривать без нужды): `reference/rb17.rs`.
 
-use crate::rt::{self, select};
+use crate::rt::{self, Stream, StreamExt};
 use std::{
-    pin::Pin,
-    process::Output,
+    pin::{Pin, pin},
+    task::{Context, Poll, Waker},
     thread,
     time::{Duration, Instant},
 };
@@ -519,5 +519,249 @@ pub fn e3_5() {
         .flatten();
 
         println!("{res:?}")
+    });
+}
+
+pub fn f4_1() {
+    rt::block_on(async {
+        let iter = (1..=10).map(|i| i * 2);
+        let mut stream = rt::stream_from_iter(iter);
+
+        while let Some(v) = stream.next().await {
+            println!("{v:?}");
+        }
+    })
+}
+
+pub fn f4_2() {
+    rt::block_on(async {
+        let (tx, mut rx) = rt::channel::<i32>();
+
+        let h = rt::spawn_task(async move {
+            for i in 1..=3 {
+                rt::sleep(ms(40)).await;
+                tx.send(i * 10).unwrap();
+            }
+        });
+
+        let start = Instant::now();
+        while let Some(message) = rx.next().await {
+            println!("[{} ms] {}", start.elapsed().as_millis(), message);
+        }
+
+        h.await;
+    });
+}
+
+pub fn e4_2() {
+    rt::block_on(async {
+        let iter = (1..=20).filter(|v| v % 2 == 0);
+        let mut stream = rt::stream_from_iter(iter);
+
+        let start = Instant::now();
+        while let Some(v) = stream.next().await {
+            println!("[{} ms] {}", start.elapsed().as_millis(), v);
+            rt::sleep(ms(10)).await;
+        }
+    });
+}
+
+async fn sum_stream<S: Stream<Item = i32> + Unpin>(mut stream: S) -> i32 {
+    let mut acc: i32 = 0;
+    while let Some(v) = stream.next().await {
+        acc += v;
+    }
+
+    acc
+}
+
+pub fn e4_3() {
+    rt::block_on(async {
+        let sum1 = sum_stream(rt::stream_from_iter(1..=10)).await;
+        println!("{sum1}");
+
+        let (tx, rx) = rt::channel();
+        rt::spawn_task(async move {
+            for i in 1..=4 {
+                rt::sleep(ms(20)).await;
+                tx.send(i * 5).unwrap();
+            }
+        });
+
+        let start = Instant::now();
+        let sum2 = sum_stream(rx).await;
+        println!("[{} ms] {}", start.elapsed().as_millis(), sum2);
+    });
+}
+
+async fn take_for<S: Stream + Unpin>(stream: &mut S, limit: Duration) -> Vec<S::Item> {
+    let start = Instant::now();
+    let mut result: Vec<S::Item> = Vec::new();
+
+    while let Ok(Some(v)) = timeout(stream.next(), limit.saturating_sub(start.elapsed())).await {
+        result.push(v);
+    }
+
+    result
+}
+
+pub fn e4_4() {
+    rt::block_on(async {
+        let (tx, mut rx) = rt::channel();
+
+        rt::spawn_task(async move {
+            for i in 1..=10 {
+                rt::sleep(ms(30)).await;
+                tx.send(i).unwrap();
+            }
+        });
+
+        let start = Instant::now();
+        let v1 = take_for(&mut rx, ms(100)).await;
+        println!("[{}, ms] {:?}", start.elapsed().as_millis(), v1);
+        rt::sleep(ms(40)).await;
+        let v2 = take_for(&mut rx, ms(100)).await;
+        println!("[{}, ms] {:?}", start.elapsed().as_millis(), v2);
+    });
+}
+
+struct Ticks {
+    left: u32,
+}
+
+impl Future for Ticks {
+    type Output = &'static str;
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        println!("  poll, left = {}", self.left);
+        if self.left == 0 {
+            Poll::Ready("Done")
+        } else {
+            self.left -= 1;
+            cx.waker().wake_by_ref();
+            Poll::Pending
+        }
+    }
+}
+
+pub fn f5_1() {
+    let mut ticks = Ticks { left: 2 };
+    let mut cx = Context::from_waker(Waker::noop());
+
+    loop {
+        match Pin::new(&mut ticks).poll(&mut cx) {
+            Poll::Ready(v) => {
+                println!("Poll::Ready -> {v}");
+                break;
+            }
+            Poll::Pending => println!("Poll::Pending"),
+        }
+    }
+
+    rt::block_on(async {
+        let ticks = Ticks { left: 3 };
+        let r = ticks.await;
+        println!("{r}");
+    })
+}
+
+async fn sender(s: rt::Sender<String>, suf: String, steps: u32, delay: Duration) {
+    for step in 1..=steps {
+        s.send(format!("{suf}-{step}")).unwrap();
+        rt::sleep(delay).await;
+    }
+}
+
+pub fn f5_2() {
+    rt::block_on(async {
+        let (tx, mut rx) = rt::channel();
+
+        let tx_fut1 = pin!(sender(tx.clone(), "A".into(), 5, ms(100)));
+        let tx_fut2 = pin!(sender(tx, "B".into(), 6, ms(80)));
+
+        let rx_fut = pin!(async {
+            while let Some(v) = rx.recv().await {
+                println!("got: {v}");
+            }
+        });
+
+        let list: Vec<Pin<&mut dyn Future<Output = ()>>> = vec![tx_fut1, tx_fut2, rx_fut];
+
+        rt::join_all(list).await;
+    });
+}
+
+fn make_list<'a>(
+    tx1: impl Future<Output = ()> + 'a,
+    tx2: impl Future<Output = ()> + 'a,
+    rx: impl Future<Output = ()> + 'a,
+) -> Vec<Pin<Box<dyn Future<Output = ()> + 'a>>> {
+    vec![Box::pin(tx1), Box::pin(tx2), Box::pin(rx)]
+}
+
+pub fn e5_2() {
+    rt::block_on(async {
+        let (tx, mut rx) = rt::channel();
+        let tx_clone = tx.clone();
+
+        let tx_fut1 = async move {
+            for v in 1..=5 {
+                tx.send(format!("A-{v}")).unwrap();
+                rt::sleep(ms(50)).await;
+            }
+        };
+
+        let tx_fut2 = async move {
+            for v in 1..=6 {
+                tx_clone.send(format!("B-{v}")).unwrap();
+                rt::sleep(ms(40)).await;
+            }
+        };
+
+        let rx_fut = async {
+            while let Some(v) = rx.recv().await {
+                println!("got: {v}");
+            }
+        };
+
+        rt::join_all(make_list(tx_fut1, tx_fut2, rx_fut)).await;
+    });
+}
+
+struct Countdown {
+    n: u32,
+    waiting: bool,
+}
+impl Countdown {
+    pub fn new(n: u32) -> Self {
+        Self { n, waiting: true }
+    }
+}
+
+impl rt::Stream for Countdown {
+    type Item = u32;
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        if self.n == 0 {
+            Poll::Ready(None)
+        } else if self.waiting {
+            self.waiting = false;
+            cx.waker().wake_by_ref();
+            println!("poll_next -> Pending");
+            Poll::Pending
+        } else {
+            self.waiting = true;
+            self.n -= 1;
+            Poll::Ready(Some(self.n + 1))
+        }
+    }
+}
+
+pub fn f5_3() {
+    rt::block_on(async {
+        let mut cd = Countdown::new(5);
+
+        while let Some(v) = cd.next().await {
+            println!("{v}...")
+        }
+        println!("Start!")
     });
 }

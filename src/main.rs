@@ -196,36 +196,70 @@ fn traning_rb17() {
     //     println!("start: e2_5");
     //     rb17::e2_5();
     //     println!("end");
-    println!("start: f3_1");
-    rb17::f3_1();
+    //     println!("start: f3_1");
+    //     rb17::f3_1();
+    //     println!("end");
+    //
+    //     println!("start: f3_2");
+    //     rb17::f3_2();
+    //     println!("end");
+    //
+    //     println!("start: f3_3");
+    //     rb17::f3_3();
+    //     println!("end");
+    //
+    //     println!("start: e3_1");
+    //     rb17::e3_1();
+    //     println!("end");
+    //
+    //     println!("start: e3_2");
+    //     rb17::e3_2();
+    //     println!("end");
+    //
+    //     println!("start: e3_3");
+    //     rb17::e3_3();
+    //     println!("end");
+    //
+    //     println!("start: e3_4");
+    //     rb17::e3_4();
+    //     println!("end");
+    //
+    //     println!("start: e3_5");
+    //     rb17::e3_5();
+    //     println!("end");
+    //
+    //     println!("start: f4_1");
+    //     rb17::f4_1();
+    //     println!("end");
+    //
+    //     println!("start: f4_2");
+    //     rb17::f4_2();
+    //     println!("end");
+    //
+    //     println!("start: e4_2");
+    //     rb17::e4_2();
+    //     println!("end");
+    //
+    //     println!("start: e4_3");
+    //     rb17::e4_3();
+    //     println!("end");
+    //
+    //     println!("start: e4_4");
+    //     rb17::e4_4();
+    //     println!("end");
+
+    println!("start: f5_1");
+    rb17::f5_1();
     println!("end");
 
-    println!("start: f3_2");
-    rb17::f3_2();
+    println!("start: f5_2");
+    rb17::f5_2();
+    println!("****");
+    rb17::e5_2();
     println!("end");
 
-    println!("start: f3_3");
-    rb17::f3_3();
-    println!("end");
-
-    println!("start: e3_1");
-    rb17::e3_1();
-    println!("end");
-
-    println!("start: e3_2");
-    rb17::e3_2();
-    println!("end");
-
-    println!("start: e3_3");
-    rb17::e3_3();
-    println!("end");
-
-    println!("start: e3_4");
-    rb17::e3_4();
-    println!("end");
-
-    println!("start: e3_5");
-    rb17::e3_5();
+    println!("start: f5_3");
+    rb17::f5_3();
     println!("end");
 }
 

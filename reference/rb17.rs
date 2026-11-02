@@ -194,7 +194,10 @@ pub fn f2_4() {
         drop(tx);
 
         while let Some(value) = rx.recv().await {
-            println!("  [{:>3} мс] received '{value}'", start.elapsed().as_millis());
+            println!(
+                "  [{:>3} мс] received '{value}'",
+                start.elapsed().as_millis()
+            );
         }
     });
 }
@@ -216,7 +219,10 @@ pub fn f2_5() {
 
         let rx_fut = async {
             while let Some(value) = rx.recv().await {
-                println!("  [{:>3} мс] received '{value}'", start.elapsed().as_millis());
+                println!(
+                    "  [{:>3} мс] received '{value}'",
+                    start.elapsed().as_millis()
+                );
             }
         };
 
@@ -478,7 +484,10 @@ impl Stream for Countdown {
 
 pub fn f5_3() {
     rt::block_on(async {
-        let mut stream = Countdown { n: 3, waiting: false };
+        let mut stream = Countdown {
+            n: 3,
+            waiting: false,
+        };
         while let Some(v) = stream.next().await {
             println!("  {v}...");
         }
